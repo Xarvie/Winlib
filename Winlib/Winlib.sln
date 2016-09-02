@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Project1", "Win32Project1\Win32Project1.vcxproj", "{A6CB2DF4-2205-4190-97E8-7038C9A6031D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Winlib", "Winlib\Winlib.vcxproj", "{A6CB2DF4-2205-4190-97E8-7038C9A6031D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
