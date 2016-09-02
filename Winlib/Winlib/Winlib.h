@@ -2,36 +2,37 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #include <stdio.h>
+#include <iostream>
 
+
+using namespace std;
 
 ///<summary>置剪切板文本。</summary><param name = "strText">宽字符串指针。</param>
-void setClipText(WCHAR * strText)
+void setClipText(wstring strText)
 {
 	if (OpenClipboard(NULL))
 	{
-
-		HGLOBAL hmem = GlobalAlloc(GHND, (wcslen(strText) + 1) * sizeof(strText[0]));
+		HGLOBAL hmem = GlobalAlloc(GHND, (strText.length() + 1) * sizeof(strText[0]));
 		WCHAR *pmem = (WCHAR*)GlobalLock(hmem);
-
 		EmptyClipboard();
-		memcpy(pmem, strText, (wcslen(strText) + 1) * sizeof(strText[0]));
+		memcpy(pmem, &strText[0], (strText.length() + 1) * sizeof(strText[0]));
 		SetClipboardData(CF_UNICODETEXT, hmem);
 		CloseClipboard();
 		GlobalFree(hmem);
 	}
 }
 
-///<summary>取剪切板文本。成功:返回堆指针，失败:NULL。</summary><returns>成功:返回堆指针，失败:NULL。</returns>
-WCHAR* getClipText()
+///<summary>取剪切板文本。成功:返回文本，失败:NULL。</summary><returns>成功:返回文本，失败:NULL。</returns>
+wstring getClipText()
 {
-	WCHAR* rt = NULL;
+	wstring rt = NULL;
 	if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
 	{
-		return;
+		return rt;
 	}
 	if (!OpenClipboard(NULL))
 	{
-		return;
+		return rt;
 	}
 	HGLOBAL hMem = GetClipboardData(CF_UNICODETEXT);
 	if (hMem)
@@ -39,9 +40,7 @@ WCHAR* getClipText()
 		WCHAR* str = (WCHAR*)GlobalLock(hMem);
 		if (str)
 		{
-			rt = new WCHAR[wcslen(str) + 1];
-			wcscpy(rt, str);
-			rt[wcslen(str)] = 0;
+			rt = str;
 			GlobalUnlock(hMem);
 		}
 	}
@@ -121,4 +120,19 @@ void keyClick(BYTE keyA, BYTE keyB, BYTE keyC)
 	keybd_event(keyC, 0, 0x2, 0);
 	keybd_event(keyB, 0, 0x2, 0);
 	keybd_event(keyA, 0, 0x2, 0);
+}
+
+///<summary>取程序所在目录。成功:返回文本，失败:NULL。</summary><returns>成功:返回文本，失败:NULL。</returns>
+wstring getProgramDir()
+{
+	wstring rt(MAX_PATH, 0);
+
+	if (GetModuleFileName(NULL, &rt[0], MAX_PATH * sizeof(WCHAR)))
+	{
+		return rt;
+	}
+	else
+	{
+		return NULL;
+	}
 }
