@@ -21,7 +21,7 @@ void setClipText(WCHAR * strText)
 	}
 }
 
-///<summary>取剪切板文本。</summary><returns>成功:返回堆指针，失败:NULL。</returns>
+///<summary>取剪切板文本。成功:返回堆指针，失败:NULL。</summary><returns>成功:返回堆指针，失败:NULL。</returns>
 WCHAR* getClipText()
 {
 	WCHAR* rt = NULL;
