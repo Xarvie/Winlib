@@ -21,7 +21,7 @@ namespace enc
 		}
 		return rt;
 	}
-
+	///<summary>ASCII转Unicode。</summary><param name = "Unicode">ASCII文本。</param><returns>成功:返回文本，失败:wstring(“”)。</returns>
 	wstring a2u(string a)
 	{
 		int iSize; 
@@ -35,7 +35,6 @@ namespace enc
 		return rt;
 	}
 }
-
 //剪切板  Clipboard
 namespace cli
 {
@@ -127,6 +126,7 @@ namespace tim
 		doEvents();
 		return 0;
 	}
+	//计时器类
 	class timer
 	{
 	public:
@@ -134,7 +134,7 @@ namespace tim
 		HANDLE hTimer = 0;
 		WAITORTIMERCALLBACK func;
 		int timerCycle;
-
+		///<summary>创建时钟。</summary><param name = "func">响应函数。</param><param name = "timerCycle">默认1000ms做一次函数响应。</param><returns>成功:0，失败:-1。</returns>
 		int CreateTimer(WAITORTIMERCALLBACK func, int timerCycle = 1000)
 		{
 			if (hTimerQueue != 0 || hTimer != 0)
@@ -145,6 +145,7 @@ namespace tim
 			this->hTimerQueue = CreateTimerQueue();
 			return(CreateTimerQueueTimer(&this->hTimer, hTimerQueue, func, 0, 0, timerCycle, WT_EXECUTEDEFAULT));
 		}
+		///<summary>删除时钟。</summary></param><returns>成功:非0，失败:0。</returns>
 		int deleteTimer()
 		{
 			if (hTimerQueue == 0 || hTimer == 0)
