@@ -1,7 +1,7 @@
 #include "Winlib.h"
 void test()
 {
-
+	
 }
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
