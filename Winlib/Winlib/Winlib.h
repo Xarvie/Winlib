@@ -209,10 +209,14 @@ namespace fil
 		}
 		_lclose(hFile);
 		return FileSize.QuadPart;
-		/*
+	}
+	///<summary>取文件压缩(实际)尺寸。成功:尺寸。</summary><param name = "fileName">文件名</param>
+	LONGLONG getFileCompressedSize(wstring fileName)
+	{
 		ULARGE_INTEGER s;
 		s.LowPart=GetCompressedFileSize(fileName.c_str(), &s.HighPart);
 		return s.HighPart * 4294967296 + s.LowPart;
+		/*
 		取实际上压缩后所占用磁盘空间,如果磁盘类型非压缩,实际效果等于GetFileSize,
 		MSDN:
 		If the file is not located on a volume that supports compression or sparse files,
@@ -261,7 +265,7 @@ namespace mou
 		SendMessage(hWnd, WM_LBUTTONDOWN, 1, x + y * 65536);
 		SendMessage(hWnd, WM_LBUTTONUP, 0, x + y * 65536);
 	}
-	///<summary>鼠标单击。(移动鼠标,并单击)</summary><param name = "hWnd">窗口句柄</param><param name = "x">X</param><param name = "y">Y</param>
+	///<summary>鼠标单击。(移动至x,y,等待10ms,单击)</summary><param name = "hWnd">窗口句柄</param><param name = "x">X</param><param name = "y">Y</param>
 	void mouseClick2(int x, int y)
 	{
 		SetCursorPos(x, y);
