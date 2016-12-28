@@ -1,28 +1,28 @@
-#pragma once
-#define _CRT_SECURE_NO_WARNINGS
+#ifndef WINLIB_H
+#define WINLIB_H
 #include <Windows.h>
 #include <stdio.h>
 #include <iostream>
 using namespace std;
 
-//±àÂëÀà encode
+//ç¼–ç ç±» encode
 namespace enc
 {
-	///<summary>Unicode×ªASCII¡£</summary><param name = "Unicode">UnicodeÎÄ±¾¡£</param><returns>³É¹¦:·µ»ØÎÄ±¾£¬Ê§°Ü:string(¡°¡±)¡£</returns>
-	string u2a(wstring Unicode)
+	///<summary>WideCharè½¬ASCIIã€‚</summary><param name = "WideChar">WideCharæ–‡æœ¬ã€‚</param><returns>æˆåŠŸ:è¿”å›æ–‡æœ¬ï¼Œå¤±è´¥:string(â€œâ€)ã€‚</returns>
+	string w2a(wstring wideString)
 	{
 		int iSize;
 		string rt;
-		iSize = WideCharToMultiByte(CP_ACP, 0, Unicode.c_str(), -1, NULL, 0, NULL, NULL);
+		iSize = WideCharToMultiByte(CP_ACP, 0, wideString.c_str(), -1, NULL, 0, NULL, NULL);
 		rt.resize(iSize, 0);
-		if (!WideCharToMultiByte(CP_ACP, 0, Unicode.c_str(), -1, &rt[0], iSize, NULL, NULL))
+		if (!WideCharToMultiByte(CP_ACP, 0, wideString.c_str(), -1, &rt[0], iSize, NULL, NULL))
 		{
 			return string("");
 		}
 		return rt;
 	}
-	///<summary>ASCII×ªUnicode¡£</summary><param name = "Unicode">ASCIIÎÄ±¾¡£</param><returns>³É¹¦:·µ»ØÎÄ±¾£¬Ê§°Ü:wstring(¡°¡±)¡£</returns>
-	wstring a2u(string a)
+	///<summary>ASCIIè½¬WideCharã€‚</summary><param name = "WideChar">ASCIIæ–‡æœ¬ã€‚</param><returns>æˆåŠŸ:è¿”å›æ–‡æœ¬ï¼Œå¤±è´¥:wstring(â€œâ€)ã€‚</returns>
+	wstring a2w(string a)
 	{
 		int iSize; 
 		wstring rt;
@@ -35,10 +35,10 @@ namespace enc
 		return rt;
 	}
 }
-//¼ôÇĞ°å  Clipboard
+//å‰ªåˆ‡æ¿  Clipboard
 namespace cli
 {
-	///<summary>ÖÃ¼ôÇĞ°åÎÄ±¾¡£</summary><param name = "strText">¿í×Ö·û´®Ö¸Õë¡£</param>
+	///<summary>ç½®å‰ªåˆ‡æ¿æ–‡æœ¬ã€‚</summary><param name = "strText">å®½å­—ç¬¦ä¸²æŒ‡é’ˆã€‚</param>
 	void setClipText(wstring strText)
 	{
 		if (OpenClipboard(NULL))
@@ -52,7 +52,7 @@ namespace cli
 			GlobalFree(hmem);
 		}
 	}
-	///<summary>È¡¼ôÇĞ°åÎÄ±¾¡£³É¹¦:·µ»ØÎÄ±¾£¬Ê§°Ü:NULL¡£</summary><returns>³É¹¦:·µ»ØÎÄ±¾£¬Ê§°Ü:NULL¡£</returns>
+	///<summary>å–å‰ªåˆ‡æ¿æ–‡æœ¬ã€‚æˆåŠŸ:è¿”å›æ–‡æœ¬ï¼Œå¤±è´¥:NULLã€‚</summary><returns>æˆåŠŸ:è¿”å›æ–‡æœ¬ï¼Œå¤±è´¥:NULLã€‚</returns>
 	wstring getClipText()
 	{
 		wstring rt;
@@ -80,7 +80,7 @@ namespace cli
 }
 namespace tim
 {
-	///<summary>´¦ÀíÊÂ¼ş¡£</summary>
+	///<summary>å¤„ç†äº‹ä»¶ã€‚</summary>
 	void doEvents()
 	{
 		MSG msg;
@@ -93,7 +93,7 @@ namespace tim
 			DispatchMessage(&msg);
 		}
 	}
-	///<summary>¸ß¾«¶ÈµÈ´ı¡£</summary><param name = "milliSecond">µÈ´ıµÄºÁÃëÊı¡£</param><returns>³É¹¦:0£¬Ê§°Ü:-1¡£</returns>
+	///<summary>é«˜ç²¾åº¦ç­‰å¾…ã€‚</summary><param name = "milliSecond">ç­‰å¾…çš„æ¯«ç§’æ•°ã€‚</param><returns>æˆåŠŸ:0ï¼Œå¤±è´¥:-1ã€‚</returns>
 	int wait(UINT64 milliSecond)
 	{
 		HANDLE hTimer;
@@ -126,7 +126,7 @@ namespace tim
 		doEvents();
 		return 0;
 	}
-	//¼ÆÊ±Æ÷Àà
+	//è®¡æ—¶å™¨ç±»
 	class timer
 	{
 	public:
@@ -134,7 +134,7 @@ namespace tim
 		HANDLE hTimer = 0;
 		WAITORTIMERCALLBACK func;
 		int timerCycle;
-		///<summary>´´½¨Ê±ÖÓ¡£</summary><param name = "func">ÏìÓ¦º¯Êı¡£</param><param name = "timerCycle">Ä¬ÈÏ1000ms×öÒ»´Îº¯ÊıÏìÓ¦¡£</param><returns>³É¹¦:0£¬Ê§°Ü:-1¡£</returns>
+		///<summary>åˆ›å»ºæ—¶é’Ÿã€‚</summary><param name = "func">å“åº”å‡½æ•°ã€‚</param><param name = "timerCycle">é»˜è®¤1000msåšä¸€æ¬¡å‡½æ•°å“åº”ã€‚</param><returns>æˆåŠŸ:0ï¼Œå¤±è´¥:-1ã€‚</returns>
 		int CreateTimer(WAITORTIMERCALLBACK func, int timerCycle = 1000)
 		{
 			if (hTimerQueue != 0 || hTimer != 0)
@@ -145,7 +145,7 @@ namespace tim
 			this->hTimerQueue = CreateTimerQueue();
 			return(CreateTimerQueueTimer(&this->hTimer, hTimerQueue, func, 0, 0, timerCycle, WT_EXECUTEDEFAULT));
 		}
-		///<summary>É¾³ıÊ±ÖÓ¡£</summary></param><returns>³É¹¦:·Ç0£¬Ê§°Ü:0¡£</returns>
+		///<summary>åˆ é™¤æ—¶é’Ÿã€‚</summary></param><returns>æˆåŠŸ:é0ï¼Œå¤±è´¥:0ã€‚</returns>
 		int deleteTimer()
 		{
 			if (hTimerQueue == 0 || hTimer == 0)
@@ -163,7 +163,7 @@ namespace tim
 }
 namespace key
 {
-	///<summary>¼üÅÌ2×éºÏ¼ü¡£</summary><param name = "keyA">°´¼üA¡£</param><param name = "keyB">°´¼üB¡£</param>
+	///<summary>é”®ç›˜2ç»„åˆé”®ã€‚</summary><param name = "keyA">æŒ‰é”®Aã€‚</param><param name = "keyB">æŒ‰é”®Bã€‚</param>
 	void keyClick(BYTE keyA, BYTE keyB)
 	{
 		keybd_event(keyB, 0, 0, 0);
@@ -172,7 +172,7 @@ namespace key
 		keybd_event(keyA, 0, 0x2, 0);
 
 	}
-	///<summary>¼üÅÌ3×éºÏ¼ü¡£</summary><param name = "keyA">°´¼üA¡£</param><param name = "keyB">°´¼üB¡£</param><param name = "keyC">°´¼üC¡£</param>
+	///<summary>é”®ç›˜3ç»„åˆé”®ã€‚</summary><param name = "keyA">æŒ‰é”®Aã€‚</param><param name = "keyB">æŒ‰é”®Bã€‚</param><param name = "keyC">æŒ‰é”®Cã€‚</param>
 	void keyClick(BYTE keyA, BYTE keyB, BYTE keyC)
 	{
 		keybd_event(keyA, 0, 0, 0);
@@ -185,7 +185,7 @@ namespace key
 }
 namespace fil
 {
-	///<summary>È¡³ÌĞòÂ·¾¶¡£³É¹¦:Â·¾¶ÎÄ±¾£¬Ê§°Ü:¿ÕÎÄ±¾¡£</summary>
+	///<summary>å–ç¨‹åºè·¯å¾„ã€‚æˆåŠŸ:è·¯å¾„æ–‡æœ¬ï¼Œå¤±è´¥:ç©ºæ–‡æœ¬ã€‚</summary>
 	wstring getProgramPath()
 	{
 		wstring rt(MAX_PATH, 0);
@@ -199,11 +199,11 @@ namespace fil
 			return rt;
 		}
 	}
-	///<summary>È¡ÎÄ¼ş³ß´ç¡£³É¹¦:³ß´ç Ê§°Ü:-1¡£</summary><param name = "fileName">ÎÄ¼şÃû</param>
+	///<summary>å–æ–‡ä»¶å°ºå¯¸ã€‚æˆåŠŸ:å°ºå¯¸ å¤±è´¥:-1ã€‚</summary><param name = "fileName">æ–‡ä»¶å</param>
 	LONGLONG getFileSize(wstring fileName)
 	{
 		LARGE_INTEGER FileSize;
-		HFILE hFile = _lopen(enc::u2a(fileName).c_str(), 0);
+		HFILE hFile = _lopen(enc::w2a(fileName).c_str(), 0);
 		if (!GetFileSizeEx((HANDLE)hFile, &FileSize))
 		{
 			return -1;
@@ -211,21 +211,21 @@ namespace fil
 		_lclose(hFile);
 		return FileSize.QuadPart;
 	}
-	///<summary>È¡ÎÄ¼şÑ¹Ëõ(Êµ¼Ê)³ß´ç¡£³É¹¦:³ß´ç¡£</summary><param name = "fileName">ÎÄ¼şÃû</param>
+	///<summary>å–æ–‡ä»¶å‹ç¼©(å®é™…)å°ºå¯¸ã€‚æˆåŠŸ:å°ºå¯¸ã€‚</summary><param name = "fileName">æ–‡ä»¶å</param>
 	LONGLONG getFileCompressedSize(wstring fileName)
 	{
 		ULARGE_INTEGER s;
 		s.LowPart=GetCompressedFileSize(fileName.c_str(), &s.HighPart);
 		return s.HighPart * 4294967296 + s.LowPart;
 		/*
-		È¡Êµ¼ÊÉÏÑ¹ËõºóËùÕ¼ÓÃ´ÅÅÌ¿Õ¼ä,Èç¹û´ÅÅÌÀàĞÍ·ÇÑ¹Ëõ,Êµ¼ÊĞ§¹ûµÈÓÚGetFileSize,
+		å–å®é™…ä¸Šå‹ç¼©åæ‰€å ç”¨ç£ç›˜ç©ºé—´,å¦‚æœç£ç›˜ç±»å‹éå‹ç¼©,å®é™…æ•ˆæœç­‰äºGetFileSize,
 		MSDN:
 		If the file is not located on a volume that supports compression or sparse files,
 		or if the file is not compressed or a sparse file, the value obtained is the actual file size,
 		the same as the value returned by a call to GetFileSize.
 		*/
 	}
-	///<summary>Ñ°ÕÒÎÄ¼ş»òÄ¿Â¼¡£³É¹¦:ÎÄ¼şÃû Ê§°Ü:¿ÕÎÄ±¾¡£</summary><param name = "filterText">Æ¥ÅäÌõ¼ş¡£Àı1£º¡°./*.txt ¡±</param>
+	///<summary>å¯»æ‰¾æ–‡ä»¶æˆ–ç›®å½•ã€‚æˆåŠŸ:æ–‡ä»¶å å¤±è´¥:ç©ºæ–‡æœ¬ã€‚</summary><param name = "filterText">åŒ¹é…æ¡ä»¶ã€‚ä¾‹1ï¼šâ€œ./*.txt â€</param>
 	wstring findFile(wstring filterText)
 	{
 		wstring rt;
@@ -242,7 +242,7 @@ namespace fil
 }
 namespace win
 {
-	///<summary>¼¤»îÖ¸¶¨´°¿Ú¡£³É¹¦:¼¤»îµÄ¾ä±ú Ê§°Ü:NULL¡£</summary><param name = "hWnd">´°¿Ú¾ä±ú</param>
+	///<summary>æ¿€æ´»æŒ‡å®šçª—å£ã€‚æˆåŠŸ:æ¿€æ´»çš„å¥æŸ„ å¤±è´¥:NULLã€‚</summary><param name = "hWnd">çª—å£å¥æŸ„</param>
 	HWND ActiveWindow(HWND hWnd)
 	{
 		DWORD idCurrent = GetCurrentThreadId();
@@ -252,7 +252,7 @@ namespace win
 		AttachThreadInput(idTarget, idCurrent, false);
 		return rt;
 	}
-	///<summary>´°¿ÚÇ°ÖÃ¡£³É¹¦:¼¤»îµÄ¾ä±ú Ê§°Ü:NULL¡£</summary><param name = "hWnd">´°¿Ú¾ä±ú</param>
+	///<summary>çª—å£å‰ç½®ã€‚æˆåŠŸ:æ¿€æ´»çš„å¥æŸ„ å¤±è´¥:NULLã€‚</summary><param name = "hWnd">çª—å£å¥æŸ„</param>
 	BOOL focusWindow(HWND hWnd)
 	{
 		return SetForegroundWindow(hWnd);
@@ -260,13 +260,13 @@ namespace win
 }
 namespace mou
 {
-	///<summary>Êó±êµ¥»÷¡£</summary><param name = "hWnd">´°¿Ú¾ä±ú</param><param name = "x">X</param><param name = "y">Y</param>
+	///<summary>é¼ æ ‡å•å‡»ã€‚</summary><param name = "hWnd">çª—å£å¥æŸ„</param><param name = "x">X</param><param name = "y">Y</param>
 	void mouseClick(HWND hWnd, int x, int y)
 	{
 		SendMessage(hWnd, WM_LBUTTONDOWN, 1, x + y * 65536);
 		SendMessage(hWnd, WM_LBUTTONUP, 0, x + y * 65536);
 	}
-	///<summary>Êó±êµ¥»÷¡£(ÒÆ¶¯ÖÁx,y,µÈ´ı10ms,µ¥»÷)</summary><param name = "hWnd">´°¿Ú¾ä±ú</param><param name = "x">X</param><param name = "y">Y</param>
+	///<summary>é¼ æ ‡å•å‡»ã€‚(ç§»åŠ¨è‡³x,y,ç­‰å¾…10ms,å•å‡»)</summary><param name = "hWnd">çª—å£å¥æŸ„</param><param name = "x">X</param><param name = "y">Y</param>
 	void mouseClick2(int x, int y)
 	{
 		SetCursorPos(x, y);
@@ -275,3 +275,5 @@ namespace mou
 		mouse_event(4, 0, 0, 0, 0);
 	}
 }
+
+#endif
