@@ -109,7 +109,7 @@ wstring a2w(string a)
 //剪切板  Clipboard
 namespace cli
 {
-///<summary>置剪切板文本。</summary><param name = "strText">宽字符串指针。</param>
+///<summary>置剪切板文本。</summary><param name = "strText">字符串指针。</param>
 void setClipText(tstring strText)
 {
 	if (OpenClipboard(NULL))
