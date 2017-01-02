@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <tchar.h>
+
 using namespace std;
 #ifdef _UNICODE
 typedef std::wstring tstring;
@@ -20,6 +21,7 @@ extern tstring _TS(const std::string tmp);
 extern tstring _TS(const wchar_t* tmp);
 extern tstring _TS(const char* tmp);
 #endif
+
 namespace  enc
 {
 extern string w2a(wstring wideString);
