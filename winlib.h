@@ -24,12 +24,12 @@ extern tstring _TS(const char* tmp);
 
 namespace  enc
 {
-extern string w2a(wstring wideString);
-extern wstring a2w(string a);
+extern string w2a(const wstring& wideString);
+extern wstring a2w(const string& a);
 }
 namespace  cli
 {
-extern void setClipText(tstring strText);
+extern void setClipText(const tstring& strText);
 extern tstring getClipText();
 }
 namespace  tim
@@ -46,9 +46,9 @@ extern void keyClick(BYTE keyA, BYTE keyB, BYTE keyC);
 namespace  fil
 {
 extern tstring getProgramPath();
-extern LONGLONG getFileSize(wstring fileName);
-extern LONGLONG getFileCompressedSize(wstring fileName);
-extern wstring findFile(wstring filterText);
+extern LONGLONG getFileSize(const tstring& fileName);
+extern LONGLONG getFileCompressedSize(const tstring& fileName);
+extern tstring findFile(const tstring& filterText);
 }
 namespace  win
 {
@@ -63,20 +63,56 @@ extern void mouseClick2(int x, int y);
 namespace  str
 {
 extern tstring antiBlank(const tchar text[]);
-extern tstring antiBlank(const tstring text);
+extern tstring antiBlank(const tstring& text);
 }
 namespace sys
 {
 extern tstring __formatPath(const tchar *perfData);
 extern int __isPathExist(tchar *perfData, const tchar *myPath);
-extern int addPath(const tchar *tcstrPath);
-};
+extern int addPath(const tstring& tcstrPath);
+}
+
+#ifdef _UNICODE
+tstring _TS(const std::wstring& tmp)
+{
+	return wstring(tmp);
+}
+tstring _TS(const std::string& tmp)
+{
+	return enc::a2w(tmp);
+}
+tstring _TS(const wchar_t* tmp)
+{
+	return wstring(tmp);
+}
+tstring _TS(const char* tmp)
+{
+	return enc::a2w(string(tmp));
+}
+#else
+tstring _TS(const std::wstring& tmp)
+{
+	return enc::w2a(tmp);
+}
+tstring _TS(const std::string& tmp)
+{
+	return string(tmp);
+}
+tstring _TS(const wchar_t* tmp)
+{
+	return enc::w2a(wstring(tmp));
+}
+tstring _TS(const char* tmp)
+{
+	return string(tmp);
+}
+#endif
 
 //编码类 encode
 namespace enc
 {
 ///<summary>WideChar转ASCII。</summary><param name = "WideChar">WideChar文本。</param><returns>成功:返回文本，失败:string(“”)。</returns>
-string w2a(wstring wideString)
+string w2a(const wstring& wideString)
 {
 	int iSize;
 	string rt;
@@ -94,7 +130,7 @@ string w2a(wstring wideString)
 	return string(ret);
 }
 ///<summary>ASCII转WideChar。</summary><param name = "WideChar">ASCII文本。</param><returns>成功:返回文本，失败:wstring(“”)。</returns>
-wstring a2w(string a)
+wstring a2w(const string& a)
 {
 	int iSize;
 	iSize = MultiByteToWideChar(CP_ACP, 0, a.c_str(), -1, NULL, 0);
@@ -112,13 +148,13 @@ wstring a2w(string a)
 namespace cli
 {
 ///<summary>置剪切板文本。</summary><param name = "strText">字符串指针。</param>
-void setClipText(tstring strText)
+void setClipText(const tstring& strText)
 {
 	if (OpenClipboard(NULL))
 	{
 		HGLOBAL hmem = GlobalAlloc(GHND,
 				(strText.length() + 1) * sizeof(strText[0]));
-		WCHAR *pmem = (WCHAR*) GlobalLock(hmem);
+		tchar *pmem = (tchar*) GlobalLock(hmem);
 		EmptyClipboard();
 		memcpy(pmem, &strText[0], (strText.length() + 1) * sizeof(strText[0]));
 		SetClipboardData(CF_UNICODETEXT, hmem);
@@ -129,7 +165,7 @@ void setClipText(tstring strText)
 ///<summary>取剪切板文本。成功:返回文本，失败:NULL。</summary><returns>成功:返回文本，失败:NULL。</returns>
 tstring getClipText()
 {
-	tstring rt;
+	tstring rt=_T("");
 	if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
 	{
 		return rt;
@@ -141,7 +177,7 @@ tstring getClipText()
 	HGLOBAL hMem = GetClipboardData(CF_UNICODETEXT);
 	if (hMem)
 	{
-		WCHAR* str = (WCHAR*) GlobalLock(hMem);
+		tchar* str = (tchar*) GlobalLock(hMem);
 		if (str)
 		{
 			rt = str;
@@ -265,23 +301,15 @@ namespace fil
 ///<summary>取程序路径。成功:路径文本，失败:空文本。</summary>
 tstring getProgramPath()
 {
-	tstring rt(MAX_PATH, 0);
-	if (GetModuleFileName(NULL, &rt[0], MAX_PATH * sizeof(WCHAR)))
-	{
-		return rt;
-	}
-	else
-	{
-		rt[0] = 0;
-		return rt;
-	}
-	return rt;
+	tchar rt[MAX_PATH]={ 0 };
+	GetModuleFileName(NULL, rt, MAX_PATH * sizeof(tchar));
+	return _TS(rt);
 }
 ///<summary>取文件尺寸。成功:尺寸 失败:-1。</summary><param name = "fileName">文件名</param>
-LONGLONG getFileSize(wstring fileName)
+LONGLONG getFileSize(const tstring& fileName)
 {
 	LARGE_INTEGER FileSize;
-	HFILE hFile = _lopen(enc::w2a(fileName).c_str(), 0);
+	HFILE hFile = _lopen(fileName.c_str(), 0);
 	if (!GetFileSizeEx((HANDLE) hFile, &FileSize))
 	{
 		return -1;
@@ -290,7 +318,7 @@ LONGLONG getFileSize(wstring fileName)
 	return FileSize.QuadPart;
 }
 ///<summary>取文件压缩(实际)尺寸。成功:尺寸。</summary><param name = "fileName">文件名</param>
-LONGLONG getFileCompressedSize(wstring fileName)
+LONGLONG getFileCompressedSize(const tstring& fileName)
 {
 	ULARGE_INTEGER s;
 	s.LowPart = GetCompressedFileSize(fileName.c_str(), &s.HighPart);
@@ -304,16 +332,16 @@ LONGLONG getFileCompressedSize(wstring fileName)
 	 */
 }
 ///<summary>寻找文件或目录。成功:文件名 失败:空文本。</summary><param name = "filterText">匹配条件。例1：“./*.txt ”</param>
-wstring findFile(wstring filterText)
+tstring findFile(const tstring& filterText)
 {
-	wstring rt;
+	tstring rt=_T("");
 	WIN32_FIND_DATA WFD;
 	HANDLE hFind = FindFirstFile(filterText.c_str(), &WFD);
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
 		return rt;
 	}
-	rt = WFD.cFileName;
+	rt = _TS(WFD.cFileName);
 	::FindClose(hFind);
 	return rt;
 }
@@ -370,7 +398,7 @@ tstring antiBlank(const tchar text[])
 	return s;
 }
 ///<summary>去首尾空格。返回:tstring型变量</summary><param name = "text">待格式化字符串</param>
-tstring antiBlank(const tstring text)
+tstring antiBlank(const tstring& text)
 {
 	tstring s(text);
 	int i, j;
@@ -391,8 +419,7 @@ tstring __formatPath(const tchar *perfData)
 	tstring allPath = (tchar *) perfData;
 	int len = _tcslen(perfData);
 	int blankflag = 1;
-	tstring out1 = _TS(""), out2 = _TS("");
-	;
+	tstring out1 = _T(""), out2 = _T("");
 	if (len == 0)
 		return out2;
 	tchar token = 0;
@@ -462,9 +489,9 @@ int __isPathExist(tchar *perfData, const tchar *myPath)
 	return 0;
 }
 ///<summary>添加用户环境变量。成功返回:0 失败:-1,路径末尾不用加反斜杠,自动去多余空格,检测是否已存在</summary><param name = "strPath">待添加的路径</param>
-int addPath(const tchar *tcstrPath)
+int addPath(const tstring& tcstrPath)
 {
-	tstring strPath = _T(";") + __formatPath(tcstrPath);
+	tstring strPath = _T(";") + __formatPath(tcstrPath.c_str());
 	int ret = 0;
 	HKEY hkResult;
 	LPCTSTR environmentKey = _T(
@@ -502,7 +529,7 @@ int addPath(const tchar *tcstrPath)
 		TCHAR lastChar = ((LPTSTR) PerfData)[cbData - 2];
 		if (lastChar != ';')
 		{
-			_tcscpy((tchar *) myValueEx, L";");
+			_tcscpy((tchar *) myValueEx, _T(";"));
 			_tcscpy((tchar *) myValueEx, strPath.c_str());
 		}
 		tstring strMyValueEx;
@@ -533,40 +560,5 @@ int addPath(const tchar *tcstrPath)
 	return ret;
 }
 }
-#ifdef _UNICODE
-tstring _TS(const std::wstring tmp)
-{
-	return wstring(tmp);
-}
-tstring _TS(const std::string tmp)
-{
-	return enc::a2w(tmp);
-}
-tstring _TS(const wchar_t* tmp)
-{
-	return wstring(tmp);
-}
-tstring _TS(const char* tmp)
-{
-	return enc::a2w(string(tmp));
-}
-#else
-tstring _TS(const std::wstring tmp)
-{
-	return enc::w2a(tmp);
-}
-tstring _TS(const std::string tmp)
-{
-	return string(tmp);
-}
-tstring _TS(const wchar_t* tmp)
-{
-	return enc::w2a(wstring(tmp));
-}
-tstring _TS(const char* tmp)
-{
-	return string(tmp);
-}
-#endif
 
 #endif //namespace end
