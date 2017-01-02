@@ -14,7 +14,7 @@ extern tstring _TS(const std::string tmp);
 extern tstring _TS(const wchar_t* tmp);
 extern tstring _TS(const char* tmp);
 #else
-typedef std::string str;
+typedef std::string tstring;
 typedef char tchar;
 extern tstring _TS(const std::wstring tmp);
 extern tstring _TS(const std::string tmp);
